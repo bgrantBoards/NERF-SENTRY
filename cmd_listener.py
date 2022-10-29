@@ -1,6 +1,8 @@
 import usb_cdc
+import supervisor
 import asyncio
 import time
+
 
 class SerialParser:
     """
@@ -8,10 +10,11 @@ class SerialParser:
     Raspi will send motor commands to the pico, this class will handle
     recieving and parsing those commands.
     """
+
     def __init__(self) -> None:
         # define serial protocol command names
         self.commands = {
-            "SET" :   ["PAN", "TILT"],
+            "SET":   ["PAN", "TILT"],
             "SPIN":   ["UP", "DOWN"],
             "SAFETY": ["ON", "OFF"],
             "FIRE":   []
@@ -25,9 +28,9 @@ class SerialParser:
         Listens for new lines coming in from the serial connection
         """
         while True:
-        #    await asyncio.sleep(.1)
-        #    time.sleep(.1)
-           line = self.cmd_serial.readline()[:-1]
-           print(line)
-
-        
+            await asyncio.sleep(0)
+            available = self.cmd_serial.in_waiting
+            if available:
+                print("serial bytes available!")
+                line = self.cmd_serial.readline()[:-1]
+                print(line)

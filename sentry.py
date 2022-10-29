@@ -10,46 +10,52 @@ from digitalio import DigitalInOut, Direction
 # load custom modules
 from actuators import Stepper, StepperHold, Trigger
 
+
 class Sentry:
     """
     Object that represents all of the actuators in the NERF sentry turret
     """
+
     def __init__(self):
         """
         Initialize all control objects and move them to their correct positions
         """
         # define pins on the Raspberry Pi Pico
-        self.MS1             = board.GP20
-        self.MS2             = board.GP21
-        self.MS3             = board.GP22
-        self.PAN_STP         = board.GP17
-        self.PAN_DIR         = board.GP16
-        self.TILT_STP        = board.GP13
-        self.TILT_DIR        = board.GP12
-        self.HOLD            = board.GP11
-        self.TRIGGER_SERVO   = board.GP15
-        self.FLYWHEEL_RELAY  = board.GP28
+        self.MS1 = board.GP20
+        self.MS2 = board.GP21
+        self.MS3 = board.GP22
+        self.PAN_STP = board.GP17
+        self.PAN_DIR = board.GP16
+        self.TILT_STP = board.GP13
+        self.TILT_DIR = board.GP12
+        self.HOLD = board.GP11
+        self.TRIGGER_SERVO = board.GP15
+        self.FLYWHEEL_RELAY = board.GP28
 
         # setup board led
         self.led = DigitalInOut(board.LED)
         self.led.direction = Direction.OUTPUT
 
         # setuo microstep config pins for the A4988 stepper driver
-        self.ms1 = DigitalInOut(self.MS1); self.ms1.direction = Direction.OUTPUT  # ms1 (microstep config) pin
-        self.ms2 = DigitalInOut(self.MS2); self.ms2.direction = Direction.OUTPUT  # ms2 (microstep config) pin
-        self.ms3 = DigitalInOut(self.MS3); self.ms3.direction = Direction.OUTPUT  # ms3 (microstep config) pin
+        self.ms1 = DigitalInOut(self.MS1)
+        self.ms1.direction = Direction.OUTPUT  # ms1 (microstep config) pin
+        self.ms2 = DigitalInOut(self.MS2)
+        self.ms2.direction = Direction.OUTPUT  # ms2 (microstep config) pin
+        self.ms3 = DigitalInOut(self.MS3)
+        self.ms3.direction = Direction.OUTPUT  # ms3 (microstep config) pin
 
         # setup motor control objects
-        self.pan_stepper  = Stepper(4950, self.PAN_STP,  self.PAN_DIR)            # stepper that moves pan  axis
-        self.tilt_stepper = Stepper(1694, self.TILT_STP, self.TILT_DIR)           # stepper that moves tilt axis
-        self.stepper_hold = StepperHold(self.HOLD)                                # object for enabling/disabling stepper hold mode
-        self.sentry_trigger = Trigger(self.TRIGGER_SERVO, self.FLYWHEEL_RELAY)    # object for controlling flywheel and trigger pull
+        # stepper that moves pan  axis
+        self.pan_stepper = Stepper(4950, self.PAN_STP,  self.PAN_DIR)
+        # stepper that moves tilt axis
+        self.tilt_stepper = Stepper(1694, self.TILT_STP, self.TILT_DIR)
+        # object for enabling/disabling stepper hold mode
+        self.stepper_hold = StepperHold(self.HOLD)
+        # object for controlling flywheel and trigger pull
+        self.sentry_trigger = Trigger(self.TRIGGER_SERVO, self.FLYWHEEL_RELAY)
 
         # put shit in its right place
-        self.led.value = True # turn LED on
-
-        # blink LED so we know this went well
-        asyncio.run(self.blink_led(.08, 10))
+        self.led.value = True  # turn LED on
 
     def set_step_res(self, step_res_config):
         """
@@ -81,10 +87,12 @@ class Sentry:
 
         # finish test
         self.stepper_hold.toggle()
-    
-    async def blink_led(self, interval, count):
-        for _ in range(count):
+
+    async def blink_led(self, interval):
+        while True:
             self.led.value = True
-            time.sleep(interval)
+            # time.sleep(interval)
+            await asyncio.sleep(interval)
             self.led.value = False
-            time.sleep(interval)
+            # time.sleep(interval)
+            await asyncio.sleep(interval)
