@@ -23,7 +23,7 @@ class SerialParser:
         # setup serial connection
         self.cmd_serial = usb_cdc.data
 
-    async def listen(self):
+    async def parse_commands(self):
         """
         Listens for new lines coming in from the serial connection
         """

@@ -1,27 +1,35 @@
-from encodings import utf_8
 import serial
-import keyboard
-ser = serial.Serial("/dev/tty.usbmodem142103")  # open first serial port
+from pynput import keyboard
 
 
-def send_line(line):
+def send_line(ser_object, line):
     """
-    Send a line to the pico via serial connection
+        Send a line to the pico via serial connection
 
-    Args:
-        line (string): 1-line message to send, no return character
-    """
-    ser.write(bytes(line + "\n", "utf_8"))      # write a string
+        Args:
+            line (string): 1-line message to send, no return character
+        """
+    ser_object.write(bytes(line + "\n", "utf_8"))      # write a string
 
 
-# while True:
-#     keyboard.aaa
-#     if keyboard.is_pressed("a"):
-#         # print("You pressed 'a'.")
-#         send_line("You pressed 'a'.")
-#         # break
+with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open first serial port
+    pressed = set()
 
-with keyboard.Listener(on_release=on_key_release) as listener:
-    listener.join()
+    def on_key_press(key):
+        global pressed
 
-ser.close()             # close port
+        # only run if key is not already in set of pressed keys
+        if not key in pressed:
+            pressed.add(key)
+            send_line(ser, f'Pressed Keys: {pressed}')
+
+    def on_key_release(key):
+        global pressed
+        pressed.remove(key)
+        if len(pressed) > 0:
+            send_line(ser, f'Pressed Keys: {pressed}')
+        else:
+            send_line(ser, "")
+
+    with keyboard.Listener(on_release=on_key_release, on_press=on_key_press) as listener:
+        listener.join()
