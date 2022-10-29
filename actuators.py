@@ -1,4 +1,5 @@
 
+import time
 from digitalio import DigitalInOut, Direction
 import asyncio
 import math
@@ -68,7 +69,7 @@ class Stepper:
         """
         # control params
         self.steps_per_rev = steps_per_rev
-        self.speed = 0 # (rev/sec)
+        self.max_steps_per_second = 2156 # (steps/sec)
         self.current_steps = 0
 
         # stepper controller
@@ -84,6 +85,26 @@ class Stepper:
         self.current_steps += move_steps
         move_task = asyncio.create_task(self.driver.move(steps=move_steps, speed=move_speed))
         await asyncio.gather(move_task)
+    
+    async def set_speed(self, speed):
+        """
+        Move the motor indefinitely at a given speed
+
+        Args:
+            speed (float): -1 to 1, multiple of max speed
+        """
+        if speed == 0:
+            # special case
+            self.driver.step()
+            return
+        direction = (speed/abs(speed) == 1) # True for forward, False for reverse
+        steps_per_second = math.floor(self.max_steps_per_second * abs(speed))
+        pause_interval = 1/steps_per_second
+
+        while True:
+            self.driver.step(direction)
+            await asyncio.sleep(pause_interval)
+
     
     async def move_deg(self, move_speed, angle_deg):
         """
@@ -176,3 +197,11 @@ class StepperHold:
         Hold on powers the stepper to resist backdriving, hold off lets it spin freely.
         """
         self.DISABLE_HOLD.value = not self.DISABLE_HOLD.value
+
+microsteps = {
+    1: [0, 0, 0],
+    1/2: [1,0, 0],
+    1/4: [0,1, 0],
+    1/8: [1,1, 0],
+    1/16: [1,1, 1],
+}
