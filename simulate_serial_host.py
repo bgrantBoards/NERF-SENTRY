@@ -1,5 +1,7 @@
 import serial
+from serial.tools.list_ports import grep
 from pynput import keyboard
+import serial
 
 
 def send_line(ser_object, line):
@@ -12,7 +14,7 @@ def send_line(ser_object, line):
     ser_object.write(bytes(line + "\n", "utf_8"))      # write a string
 
 
-with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open first serial port
+with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open serial port
     pressed = set()
 
     def on_key_press(key):
@@ -21,13 +23,13 @@ with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open first serial port
         # only run if key is not already in set of pressed keys
         if not key in pressed:
             pressed.add(key)
-            send_line(ser, f'Pressed Keys: {pressed}')
+            send_line(ser, f'{pressed}')
 
     def on_key_release(key):
         global pressed
         pressed.remove(key)
         if len(pressed) > 0:
-            send_line(ser, f'Pressed Keys: {pressed}')
+            send_line(ser, f'{pressed}')
         else:
             send_line(ser, "")
 

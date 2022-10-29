@@ -11,7 +11,8 @@ ser = SerialParser()
 
 async def main():
     led_task = asyncio.create_task(s.blink_led(0.08))
-    serial_task = asyncio.create_task(ser.parse_commands())
+    # serial_task = asyncio.create_task(ser.parse_commands())
+    serial_task = asyncio.create_task(ser.op_control())
 
     await asyncio.gather(led_task, serial_task)  # Don't forget "await"!
     # await asyncio.gather(led_task)  # Don't forget "await"!
