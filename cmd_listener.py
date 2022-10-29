@@ -31,6 +31,5 @@ class SerialParser:
             await asyncio.sleep(0)
             available = self.cmd_serial.in_waiting
             if available:
-                print("serial bytes available!")
                 line = self.cmd_serial.readline()[:-1]
-                print(line)
+                print(line.decode("utf-8"))
