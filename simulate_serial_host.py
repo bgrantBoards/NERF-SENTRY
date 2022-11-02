@@ -14,7 +14,7 @@ def send_line(ser_object, line):
     ser_object.write(bytes(line + "\n", "utf_8"))      # write a string
 
 
-with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open serial port
+with serial.Serial("/dev/tty.usbmodem142303") as ser:  # open serial port
     pressed = set()
 
     def on_key_press(key):

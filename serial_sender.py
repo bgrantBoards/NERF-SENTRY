@@ -1,6 +1,6 @@
 import serial
 import time
-ser = serial.Serial("/dev/tty.usbmodem142103")  # open first serial port
+# ser = serial.Serial("/dev/tty.usbmodem142103")  # open first serial port
 
 
 def send_line(ser_object, line):
@@ -13,9 +13,9 @@ def send_line(ser_object, line):
     ser_object.write(bytes(line + "\n", "utf_8"))      # write a string
 
 
-with serial.Serial("/dev/tty.usbmodem142103") as ser:  # open serial port
+with serial.Serial("/dev/tty.usbmodem142203") as ser:  # open serial port
     # test string to send
-    test_str = "{'j', 'a', 'g', 'h'}"
+    test_str = "ligma2"
     send_line(ser, test_str)
     time.sleep(0.01)
     print(f"{test_str} sent")
