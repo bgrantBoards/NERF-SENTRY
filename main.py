@@ -18,12 +18,14 @@ async def run_serial_test(ser:SerialParser, display:Display):
 
 async def sentry_loop():
     led_task = asyncio.create_task(s.blink_led(0.08))
-    op_control_task = s.run_op_control(ser)
-    # test_serial_task = run_serial_test(ser, s.display)
-    cmd_exection_task = s.execute_cmds()
-    
-    await asyncio.gather(led_task, op_control_task, cmd_exection_task)  # Don't forget "await"!
-    # await asyncio.gather(led_task, test_serial_task)
+
+
+    # op_control_task = s.run_op_control(ser)
+    # cmd_exection_task = s.execute_cmds()
+    # await asyncio.gather(led_task, op_control_task, cmd_exection_task)  # Don't forget "await"!
+
+    test_serial_task = run_serial_test(ser, s.display)
+    await asyncio.gather(led_task, test_serial_task)
 
 async def main():
     loop = asyncio.get_event_loop()
