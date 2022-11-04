@@ -2,10 +2,10 @@
 # Run on a Raspberry Pi Pico with Circuitpy installed
 
 # load standard modules
-import math
 import asyncio
 import board
 from digitalio import DigitalInOut, Direction
+from cmd_listener import SerialParser
 
 # load custom modules
 from actuators import Stepper, StepperHold, Trigger, Display, microsteps
@@ -228,6 +228,28 @@ class Sentry:
             input_cmds = ser.get_op_control_cmds()
             if input_cmds:
                 # print(input_cmds)
+                # async sleep to hopefully make shit work?
+                await asyncio.sleep(0)
+
+                # update command set
+                for cmd in input_cmds:
+                    await asyncio.sleep(0)
+                    self.cmds.discard(cmd)
+                    self.cmds.add(cmd)
+
+                print(self.cmds)
+    
+    async def run_targeting(self, ser:SerialParser):
+        """
+        Handles getting targeting commands from serial parser and passing them to the execution method
+
+        Args:
+            ser (SerialParser): serial parser for the command stream
+        """
+        while True:
+            await asyncio.sleep(0)
+            input_cmds = ser.get_targeting_cmds(self.display)
+            if input_cmds:
                 # async sleep to hopefully make shit work?
                 await asyncio.sleep(0)
 

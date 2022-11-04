@@ -1,8 +1,9 @@
 # import serial
 import asyncio
-from sentry import Sentry
-from cmd_listener import SerialParser
-from actuators import Display
+# from sentry import Sentry
+# from cmd_listener import SerialParser
+# from actuators import Display
+from classes import Display, Sentry, SerialParser
 
 # from motor_test import main
 
@@ -24,8 +25,13 @@ async def sentry_loop():
     # cmd_exection_task = s.execute_cmds()
     # await asyncio.gather(led_task, op_control_task, cmd_exection_task)  # Don't forget "await"!
 
-    test_serial_task = run_serial_test(ser, s.display)
-    await asyncio.gather(led_task, test_serial_task)
+    # test_serial_task = run_serial_test(ser, s.display)
+    # await asyncio.gather(led_task, test_serial_task)
+
+    targetting_control_task = s.run_targeting(ser)
+    cmd_exection_task = s.execute_cmds()
+    await asyncio.gather(led_task, targetting_control_task, cmd_exection_task)  # Don't forget "await"!
+
 
 async def main():
     loop = asyncio.get_event_loop()

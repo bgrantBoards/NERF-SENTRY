@@ -1,6 +1,6 @@
 import usb_cdc
 import asyncio
-from sentry import PanTiltCmd, SpinCmd, FireCmd, SafetyCmd
+from sentry import SpinCmd, FireCmd, SafetyCmd, PanTiltCmd
 from actuators import Display
 
 
@@ -41,7 +41,6 @@ class SerialParser:
             available = self.cmd_serial.in_waiting
             if available:
                 line = self.cmd_serial.readline()[:-1]
-                # print(line.decode("utf-8"))
 
     def get_line(self):
         """
@@ -110,7 +109,7 @@ class SerialParser:
 
             return commands
     
-    def test_serial_echo(self, display:Display):
+    def test_serial_echo(self, display):
         """
         Echo serial data that comes in to the display
 
@@ -122,3 +121,60 @@ class SerialParser:
             line = self.get_line()
             display.text(line)
 
+    def get_targeting_cmds(self, display:Display):
+        # only attempt to get command if new serial line is available
+        available = self.cmd_serial.in_waiting
+        if available:
+            line = self.get_line()
+            display.text(line)
+            cmd_args = line.split()   # will be any of:
+                                      # ["SET", "PAN" "X.XX"] / ["SET", "TILT", "X.XX"]
+                                      # ["SPIN", "UP"] / ["SPIN", "DOWN"]
+                                      # ["SAFETY", "ON"] / ["SAFTEY", "OFF"]
+                                      # ["FIRE"]
+            
+            if cmd_args[0] == "SET":
+                # This is a stepper movement command
+                if cmd_args[1] == "PAN":
+                    # This is a pan stepper command
+                    speed = float(cmd_args[2])
+                    return PanTiltCmd("pan", speed)
+                elif cmd_args[1] == "TILT":
+                    # This is a tilt stepper command
+                    return PanTiltCmd("tilt", speed)
+                else:
+                    # invalid command
+                    display.text("INVALID SPIN")
+                    raise(ValueError("Invalid SPIN command"))
+                    return
+            elif cmd_args[0] == "SPIN":
+                # This is a flywheel spin command
+                if cmd_args[1] == "UP":
+                    # TODO: Spin flywheels up
+                    return SpinCmd(True)
+                elif cmd_args[1] == "DOWN":
+                    # TODO: Spin flywheels down
+                    return SpinCmd(False)
+                else:
+                    # invalid command
+                    display.text("INVALID SET")
+                    raise(ValueError("Invalid SET command"))
+            elif cmd_args[0] == "SAFETY":
+                if cmd_args[1] == "ON":
+                    # This is a safety on command
+                    return SafetyCmd(True)
+                elif cmd_args[1] == "OFF":
+                    # This is a safety off command
+                    return SafetyCmd(False)
+                else:
+                    # invalid command
+                    display.text("INVALID SAFETY")
+                    raise(ValueError("Invalid SAFETY command"))
+                    return
+            elif cmd_args[0] == "FIRE":
+                return FireCmd(True)
+            else:
+                # invalid command
+                    display.text("INVALID COMMAND")
+                    raise(ValueError("Invalid command"))
+                    return

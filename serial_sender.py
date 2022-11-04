@@ -13,9 +13,19 @@ def send_line(ser_object, line):
     ser_object.write(bytes(line + "\n", "utf_8"))      # write a string
 
 
-with serial.Serial("/dev/tty.usbmodem142203") as ser:  # open serial port
-    # test string to send
-    test_str = "ligma2"
-    send_line(ser, test_str)
-    time.sleep(0.01)
-    print(f"{test_str} sent")
+test_commands = [
+                 "SET PAN 0.1",
+                 "SET PAN -0.1",
+                 "SET PAN 0",
+                 "SET TILT 0.1",
+                 "SET TILT -0.1",
+                 "SET TILT 0",
+                 "FIRE"
+                ]
+
+with serial.Serial("/dev/tty.usbmodem142303") as ser:  # open serial port
+    for cmd in test_commands:
+        send_line(ser, cmd)
+        print(f"{cmd} sent")
+        time.sleep(1)
+
